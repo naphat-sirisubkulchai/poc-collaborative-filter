@@ -1,0 +1,197 @@
+scalar Time
+scalar JSON
+scalar Decimal
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  # Customer queries
+  customer(id: String!): Customer
+  customers(filter: CustomerFilter, limit: Int, offset: Int): CustomerConnection!
+
+  # Recommendation queries
+  recommendations(customerId: String!, type: RecommendationType, limit: Int): [Recommendation!]!
+  similarCustomers(customerId: String!, limit: Int): [SimilarCustomer!]!
+
+  # Collaborative filtering queries
+  generateRecommendations(customerId: String!, type: RecommendationType!): [Recommendation!]!
+}
+
+type Mutation {
+  # Customer mutations
+  createCustomer(input: CreateCustomerInput!): Customer!
+  updateCustomer(id: String!, input: UpdateCustomerInput!): Customer!
+  deleteCustomer(id: String!): Boolean!
+
+  # Recommendation mutations
+  dismissRecommendation(id: String!): Recommendation!
+  acceptRecommendation(id: String!): Recommendation!
+}
+
+# Customer Types
+type Customer {
+  id: String!
+  name: String!
+  email: String
+  phone: String
+  segment: CustomerSegment!
+  status: CustomerStatus!
+  riskProfile: CustomerRiskProfile
+  traits: CustomerTraits
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type CustomerTraits {
+  personality: [String!]
+  preferences: [String!]
+  notes: String
+  tags: [String!]
+  properties: [TraitProperty!]
+  relatedPersons: [RelatedPerson!]
+}
+
+type TraitProperty {
+  key: String!
+  value: String!
+  type: String!
+}
+
+type RelatedPerson {
+  name: String!
+  relationship: String!
+  phone: String
+  email: String
+}
+
+type CustomerConnection {
+  nodes: [Customer!]!
+  totalCount: Int!
+}
+
+# Recommendation Types
+type Recommendation {
+  id: String!
+  customerId: String!
+  type: RecommendationType!
+  itemId: String!
+  itemName: String!
+  score: Float!
+  reason: String
+  status: RecommendationStatus!
+  metadata: RecommendationMetadata
+  similarCustomers: [String!]
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type RecommendationMetadata {
+  algorithm: String!
+  parameters: JSON
+  confidence: Float!
+  basedOnUsers: Int!
+  similarityAvg: Float!
+}
+
+type SimilarCustomer {
+  customer: Customer!
+  similarityScore: Float!
+  weights: SimilarityWeights!
+}
+
+type SimilarityWeights {
+  personal: Float!
+  survey: Float!
+  activityAccess: Float!
+  transaction: Float!
+}
+
+# Enums
+enum CustomerSegment {
+  RETAIL
+  AFFLUENT
+  HNI
+  UHNI
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  PROSPECT
+  DORMANT
+}
+
+enum CustomerRiskProfile {
+  CONSERVATIVE
+  MODERATE
+  BALANCED
+  GROWTH
+  AGGRESSIVE
+}
+
+enum RecommendationType {
+  PRODUCT
+  CUSTOMER
+  FUND
+  SECTOR
+}
+
+enum RecommendationStatus {
+  ACTIVE
+  DISMISSED
+  ACCEPTED
+  EXPIRED
+}
+
+# Input Types
+input CustomerFilter {
+  segment: CustomerSegment
+  status: CustomerStatus
+  riskProfile: CustomerRiskProfile
+  search: String
+}
+
+input CreateCustomerInput {
+  name: String!
+  email: String
+  phone: String
+  segment: CustomerSegment!
+  status: CustomerStatus!
+  riskProfile: CustomerRiskProfile
+  traits: CustomerTraitsInput
+}
+
+input UpdateCustomerInput {
+  name: String
+  email: String
+  phone: String
+  segment: CustomerSegment
+  status: CustomerStatus
+  riskProfile: CustomerRiskProfile
+  traits: CustomerTraitsInput
+}
+
+input CustomerTraitsInput {
+  personality: [String!]
+  preferences: [String!]
+  notes: String
+  tags: [String!]
+  properties: [TraitPropertyInput!]
+  relatedPersons: [RelatedPersonInput!]
+}
+
+input TraitPropertyInput {
+  key: String!
+  value: String!
+  type: String!
+}
+
+input RelatedPersonInput {
+  name: String!
+  relationship: String!
+  phone: String
+  email: String
+}

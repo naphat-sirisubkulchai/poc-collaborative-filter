@@ -1,0 +1,54 @@
+# Builder stage
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache git
+
+# Copy go mod files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o collaborative-filter cmd/server/main.go
+
+# Production stage
+FROM alpine:latest AS production
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+# Copy the binary from builder
+COPY --from=builder /app/collaborative-filter .
+
+# Expose port
+EXPOSE 8080
+
+# Run the binary
+CMD ["./collaborative-filter"]
+
+# Development stage
+FROM golang:1.25-alpine AS development
+
+WORKDIR /app
+
+# Install air for hot reload
+RUN go install github.com/air-verse/air@latest
+
+# Copy go mod files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 8080
+
+# Run air for hot reload
+CMD ["air"]

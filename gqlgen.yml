@@ -1,0 +1,91 @@
+# GraphQL schema location
+schema:
+  - graph/*.graphqls
+
+# Where should the generated server code go?
+exec:
+  filename: graph/generated/generated.go
+  package: generated
+
+# Where should the generated models go?
+model:
+  filename: graph/model/models_gen.go
+  package: model
+
+# Where should the resolver code go?
+resolver:
+  layout: follow-schema
+  dir: graph
+  package: graph
+  filename_template: "{name}.resolvers.go"
+
+# Autobind existing models
+autobind:
+  - "poc-collaborative-filter/graph/model"
+  - "poc-collaborative-filter/internal/domain"
+
+# Custom scalar mappings
+models:
+  ID:
+    model:
+      - github.com/99designs/gqlgen/graphql.ID
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32
+  Int:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32
+  Time:
+    model: poc-collaborative-filter/graph/model.Time
+  JSON:
+    model: poc-collaborative-filter/graph/model.JSON
+  Decimal:
+    model: poc-collaborative-filter/graph/model.Decimal
+
+  # Map domain models to GraphQL types
+  Customer:
+    model:
+      - poc-collaborative-filter/internal/domain.Customer
+    fields:
+      traits:
+        resolver: true
+      accountType:
+        resolver: true
+      holdings:
+        resolver: true
+  CustomerTraits:
+    model:
+      - poc-collaborative-filter/internal/domain.CustomerTraits
+  TraitProperty:
+    model:
+      - poc-collaborative-filter/internal/domain.TraitProperty
+  RelatedPerson:
+    model:
+      - poc-collaborative-filter/internal/domain.RelatedPerson
+
+  Recommendation:
+    model:
+      - poc-collaborative-filter/internal/domain.Recommendation
+    fields:
+      metadata:
+        resolver: true
+      similarCustomers:
+        resolver: true
+
+  CustomerSegment:
+    model:
+      - poc-collaborative-filter/internal/domain.CustomerSegment
+  CustomerStatus:
+    model:
+      - poc-collaborative-filter/internal/domain.CustomerStatus
+  CustomerRiskProfile:
+    model:
+      - poc-collaborative-filter/internal/domain.CustomerRiskProfile
+  RecommendationType:
+    model:
+      - poc-collaborative-filter/internal/domain.RecommendationType
+  RecommendationStatus:
+    model:
+      - poc-collaborative-filter/internal/domain.RecommendationStatus

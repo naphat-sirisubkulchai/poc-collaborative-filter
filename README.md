@@ -487,6 +487,3 @@ type Customer struct {
    - Shared database or API calls
    - Message queue (NATS/RabbitMQ)
 
-## License
-
-Proprietary - Vahalla Backend
